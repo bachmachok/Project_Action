@@ -3,10 +3,10 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main  # Змінено на 'main'
+      - main 
   pull_request:
     branches:
-      - main  # Змінено на 'main'
+      - main 
 
 jobs:
   build:
@@ -14,10 +14,18 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3  # Оновлено на v3
+        uses: actions/checkout@v3 
+
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3  # Оновлено на v3
+        uses: actions/setup-node@v3 
         with:
           node-version: '16'
 
@@ -28,7 +36,7 @@ jobs:
         run: npm test
 
       - name: Deploy to Heroku
-        if: github.ref == 'refs/heads/main'  # Змінено на 'main'
+        if: github.ref == 'refs/heads/main' 
         run: |
           echo "$HEROKU_API_KEY" | docker login --username="$HEROKU_EMAIL" --password-stdin registry.heroku.com
           docker build -t registry.heroku.com/$HEROKU_APP_NAME/web .
